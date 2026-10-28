@@ -1,0 +1,41 @@
+# Cron trigger — every Monday at 06:00 UTC.
+#
+# UNIX cron: minute hour day-of-month month day-of-week
+# MON is the weekday. 0 and 7 also mean Sunday in UNIX cron;
+# Harness docs use the three-letter form (see 0 1 * * MON).
+#
+# Paste after the pipeline exists. Replace every # REPLACE: line.
+# Create this trigger disabled (enabled: false) until you have a
+# green manual run. Then flip enabled to true.
+
+trigger:
+  name: Weekly Build
+  identifier: weekly_build
+  enabled: false
+  description: Weekly CI run every Monday at 06:00 UTC against main
+  orgIdentifier: <YOUR_ORG_IDENTIFIER>  # REPLACE
+  projectIdentifier: <YOUR_PROJECT_IDENTIFIER>  # REPLACE
+  pipelineIdentifier: scheduled_builds
+  source:
+    type: Scheduled
+    spec:
+      type: Cron
+      spec:
+        expression: "0 6 * * MON"
+        type: UNIX
+  inputYaml: |
+    pipeline:
+      identifier: scheduled_builds
+      properties:
+        ci:
+          codebase:
+            connectorRef: githubconnector
+            repoName: harness-community/ci-tidbits-scheduled-builds
+            build:
+              type: branch
+              spec:
+                branch: main
+      variables:
+        - name: cadence
+          type: String
+          value: weekly

@@ -1,0 +1,41 @@
+# Cron trigger — every day at 02:00 UTC.
+#
+# UNIX cron: minute hour day-of-month month day-of-week
+# Harness evaluates this expression in UTC unless the
+# PIPE_SUPPORT_MULTIPLE_TIMEZONES_IN_CRON_TRIGGERS flag is on.
+#
+# Paste after the pipeline exists. Replace every # REPLACE: line.
+# Create this trigger disabled (enabled: false) until you have a
+# green manual run. Then flip enabled to true.
+
+trigger:
+  name: Nightly Build
+  identifier: nightly_build
+  enabled: false
+  description: Daily CI run at 02:00 UTC against main
+  orgIdentifier: <YOUR_ORG_IDENTIFIER>  # REPLACE
+  projectIdentifier: <YOUR_PROJECT_IDENTIFIER>  # REPLACE
+  pipelineIdentifier: scheduled_builds
+  source:
+    type: Scheduled
+    spec:
+      type: Cron
+      spec:
+        expression: "0 2 * * *"
+        type: UNIX
+  inputYaml: |
+    pipeline:
+      identifier: scheduled_builds
+      properties:
+        ci:
+          codebase:
+            connectorRef: githubconnector
+            repoName: harness-community/ci-tidbits-scheduled-builds
+            build:
+              type: branch
+              spec:
+                branch: main
+      variables:
+        - name: cadence
+          type: String
+          value: nightly
